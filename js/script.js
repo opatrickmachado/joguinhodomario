@@ -3,19 +3,28 @@ let hasJumped = false;
 const mario = document.querySelector('.mario');
 const pipe = document.querySelector('.pipe');
 const counter = document.getElementById('jump-counter');
-const restartButton = document.getElementById('restart-button'); // novo
+const restartButton = document.getElementById('restart-button');
 
-const jump = () => {
-    mario.classList.add('jump');
-    hasJumped = true;
+let highScore = Number(localStorage.getItem('highScore')) || 0;
+const highScoreDisplay = document.getElementById('high-score');
 
-    setTimeout(() => {
-        mario.classList.remove('jump');
-    }, 500);
+highScoreDisplay.innerText = `Recorde: ${highScore}`;
+
+const jump = (event) => {
+    if (event.keyCode === 32 && !hasJumped) {
+        mario.classList.add('jump');
+        hasJumped = true;
+
+        setTimeout(() => {
+            mario.classList.remove('jump');
+            hasJumped = false;
+        }, 500);
+    }
 }
 
+document.addEventListener('keydown', jump);
+
 const loop = setInterval(() => {
-    
     const pipePosition = pipe.offsetLeft;
     const marioPosition = +window.getComputedStyle(mario).bottom.replace('px', '');
 
@@ -30,21 +39,30 @@ const loop = setInterval(() => {
         mario.style.width = '75px';
         mario.style.marginLeft = '50px';
 
-        restartButton.style.display = 'block'; // novo
+        restartButton.style.display = 'block';
         clearInterval(loop);
+
+        if (jumpCount > highScore) {
+            highScore = jumpCount;
+            localStorage.setItem('highScore', highScore.toString());
+            highScoreDisplay.innerText = `Recorde: ${highScore}`;
+        }
     }
 
     if (pipePosition < mario.offsetWidth && hasJumped) {
         jumpCount += 1;
         counter.innerText = `Pulos: ${jumpCount}`;
         hasJumped = false;
+
+        if (jumpCount > highScore) {
+            highScore = jumpCount;
+            localStorage.setItem('highScore', highScore.toString());
+            highScoreDisplay.innerText = `Recorde: ${highScore}`;
+        }
     }
 
 }, 10);
 
-document.addEventListener('keydown', jump);
-
-// novo
 restartButton.addEventListener('click', () => {
     location.reload();
 });
