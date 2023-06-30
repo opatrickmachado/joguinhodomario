@@ -86,3 +86,15 @@ restartButton.addEventListener('click', () => {
     pipeSpeed = 1.5; // Resetando a velocidade do cano
     updatePipeAnimation(pipeSpeed, pipeWidth);
 });
+
+const backgroundMusic = document.getElementById('background-music');
+
+// Iniciar a reprodução da música quando o jogo começar
+function startGame() {
+    backgroundMusic.play();
+}
+
+// Pausar a reprodução da música quando o jogador morrer
+function playerDies() {
+    backgroundMusic.pause();
+}
