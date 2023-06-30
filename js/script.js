@@ -11,18 +11,20 @@ const highScoreDisplay = document.getElementById('high-score');
 highScoreDisplay.innerText = `Recorde: ${highScore}`;
 
 const jump = (event) => {
-    if (event.keyCode === 32 && !hasJumped) {
+    if ((event.keyCode === 32 || event.type === "touchstart") && !hasJumped) {
+        event.preventDefault(); 
         mario.classList.add('jump');
         hasJumped = true;
 
         setTimeout(() => {
             mario.classList.remove('jump');
             hasJumped = false;
-        }, 450 - (jumpCount * 2 > 200 ? 200 : jumpCount * 2)); // O tempo de pulo diminui conforme o score aumenta
+        }, 500); // Aumentando o tempo de pulo para 500ms
     }
 }
 
 document.addEventListener('keydown', jump);
+document.addEventListener('touchstart', jump, {passive: false}); // Adiciona suporte a touch e permite prevenir o comportamento padrão
 
 let pipeSpeed = 1.5; 
 let pipeWidth = 80;
