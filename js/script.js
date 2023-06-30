@@ -19,7 +19,7 @@ const jump = (event) => {
         setTimeout(() => {
             mario.classList.remove('jump');
             hasJumped = false;
-        }, 500); // Aumentando o tempo de pulo para 500ms
+        }, 400);
     }
 }
 
