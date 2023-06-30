@@ -18,11 +18,20 @@ const jump = (event) => {
         setTimeout(() => {
             mario.classList.remove('jump');
             hasJumped = false;
-        }, 500);
+        }, 450 - (jumpCount * 2 > 200 ? 200 : jumpCount * 2)); // O tempo de pulo diminui conforme o score aumenta
     }
 }
 
 document.addEventListener('keydown', jump);
+
+let pipeSpeed = 1.5; 
+let pipeWidth = 80;
+
+function updatePipeAnimation(duration, width) {
+    let animationRule = `pipe-animation ${duration}s infinite linear`;
+    pipe.style.animation = animationRule;
+    pipe.style.width = `${width}px`;
+}
 
 const loop = setInterval(() => {
     const pipePosition = pipe.offsetLeft;
@@ -54,6 +63,12 @@ const loop = setInterval(() => {
         counter.innerText = `Pulos: ${jumpCount}`;
         hasJumped = false;
 
+        if (jumpCount % 5 === 0) {
+            pipeSpeed = Math.max(0.5, pipeSpeed - 0.05); // A velocidade nunca será inferior a 0.5s
+            pipeWidth = Math.max(50, pipeWidth - 2); // A largura nunca será menor que 50px
+            updatePipeAnimation(pipeSpeed, pipeWidth);
+        }
+
         if (jumpCount > highScore) {
             highScore = jumpCount;
             localStorage.setItem('highScore', highScore.toString());
@@ -65,4 +80,7 @@ const loop = setInterval(() => {
 
 restartButton.addEventListener('click', () => {
     location.reload();
+    pipe.style.width = '80px'; // Resetando o tamanho do cano
+    pipeSpeed = 1.5; // Resetando a velocidade do cano
+    updatePipeAnimation(pipeSpeed, pipeWidth);
 });
