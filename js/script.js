@@ -1,5 +1,6 @@
 let jumpCount = 0;
 let hasJumped = false;
+let hasDucked = false;
 const mario = document.querySelector('.mario');
 const pipe = document.querySelector('.pipe');
 const counter = document.getElementById('jump-counter');
@@ -11,7 +12,7 @@ const highScoreDisplay = document.getElementById('high-score');
 highScoreDisplay.innerText = `Recorde: ${highScore}`;
 
 const jump = (event) => {
-    if ((event.keyCode === 32 || event.type === "touchstart") && !hasJumped) {
+    if (!hasJumped) {
         event.preventDefault(); 
         mario.classList.add('jump');
         hasJumped = true;
@@ -23,8 +24,28 @@ const jump = (event) => {
     }
 }
 
+const duck = (event) => {
+    if (!hasDucked) {
+        event.preventDefault(); 
+        mario.classList.add('duck');
+
+        setTimeout(() => {
+            mario.classList.remove('duck');
+            hasDucked = false;
+        }, 500);
+    }
+}
+
+document.addEventListener('keydown', event => {
+    if (event.keyCode === 32) {
+        jump(event);
+    } else if (event.keyCode === 40) {
+        duck(event);
+    }
+});
+
 document.addEventListener('keydown', jump);
-document.addEventListener('touchstart', jump, {passive: false}); // Adiciona suporte a touch e permite prevenir o comportamento padrão
+document.addEventListener('touchstart', jump, {passive: false});
 
 let pipeSpeed = 1.5; 
 let pipeWidth = 80;
@@ -35,59 +56,61 @@ function updatePipeAnimation(duration, width) {
     pipe.style.width = `${width}px`;
 }
 
-const loop = setInterval(() => {
-    const pipePosition = pipe.offsetLeft;
-    const marioPosition = +window.getComputedStyle(mario).bottom.replace('px', '');
+function randomIntFromInterval(min, max) { // nova função
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
 
-    if (pipePosition <= 120 && pipePosition > 0 && marioPosition < 80){
-        pipe.style.animation = 'none';
-        pipe.style.left = `${pipePosition}px`;
+const loop = () => {
+    const gameInterval = setInterval(() => {
+        const marioPosition = +window.getComputedStyle(mario).bottom.replace('px', '');
 
-        mario.style.animation = 'none';
-        mario.style.bottom = `${marioPosition}px`;
+        document.querySelectorAll('.pipe').forEach(pipe => {
+            const pipePosition = pipe.offsetLeft;
 
-        mario.src = './images/game-over.png';
-        mario.style.width = '75px';
-        mario.style.marginLeft = '50px';
+            if (pipePosition <= 120 && pipePosition > 0 && marioPosition < 80){
+                updateRanking(jumpCount);
+                pipe.style.animation = 'none';
+                pipe.style.left = `${pipePosition}px`;
 
-        restartButton.style.display = 'block';
-        clearInterval(loop);
+                mario.style.animation = 'none';
+                mario.style.bottom = `${marioPosition}px`;
 
-        if (jumpCount > highScore) {
-            highScore = jumpCount;
-            localStorage.setItem('highScore', highScore.toString());
-            highScoreDisplay.innerText = `Recorde: ${highScore}`;
-        }
-    }
+                mario.src = './images/game-over.png';
+                mario.style.width = '75px';
+                mario.style.marginLeft = '50px';
 
-    if (pipePosition < mario.offsetWidth && hasJumped) {
-        jumpCount += 1;
-        counter.innerText = `Pulos: ${jumpCount}`;
-        hasJumped = false;
+                restartButton.style.display = 'block';
+                clearInterval(gameInterval);
 
-        if (jumpCount % 5 === 0) {
-            pipeSpeed = Math.max(0.5, pipeSpeed - 0.05); // A velocidade nunca será inferior a 0.5s
-            pipeWidth = Math.max(50, pipeWidth - 2); // A largura nunca será menor que 50px
-            updatePipeAnimation(pipeSpeed, pipeWidth);
-        }
+                // Aqui adicionamos a música de morte
+                const deathMusic = document.getElementById('death-music');
+                backgroundMusic.pause();
+                deathMusic.play();
 
-        if (jumpCount > highScore) {
-            highScore = jumpCount;
-            localStorage.setItem('highScore', highScore.toString());
-            highScoreDisplay.innerText = `Recorde: ${highScore}`;
-        }
-    }
+                if (jumpCount > highScore) {
+                    highScore = jumpCount;
+                    localStorage.setItem('highScore', highScore.toString());
+                    highScoreDisplay.innerText = `Recorde: ${highScore}`;
+                }
+            }
 
-}, 10);
+            if (pipePosition < mario.offsetWidth && hasJumped) {
+                jumpCount += 1;
+                counter.innerText = `Pulos: ${jumpCount}`;
+                hasJumped = false;
 
-restartButton.addEventListener('click', () => {
-    location.reload();
-    pipe.style.width = '80px'; // Resetando o tamanho do cano
-    pipeSpeed = 1.5; // Resetando a velocidade do cano
-    updatePipeAnimation(pipeSpeed, pipeWidth);
-});
+                if (jumpCount > highScore) {
+                    highScore = jumpCount;
+                    localStorage.setItem('highScore', highScore.toString());
+                    highScoreDisplay.innerText = `Recorde: ${highScore}`;
+                }
+            }
+        });
+    }, 10);
+    return gameInterval;
+}
 
-const backgroundMusic = document.getElementById('background-music');
+let game = loop();
 
 // Iniciar a reprodução da música quando o jogo começar
 function startGame() {
@@ -98,3 +121,41 @@ function startGame() {
 function playerDies() {
     backgroundMusic.pause();
 }
+
+restartButton.addEventListener('click', () => {
+        // Reset variables
+        jumpCount = 0;
+        hasJumped = false;
+        hasDucked = false;
+        
+        location.reload();
+        pipe.style.width = '80px';
+        pipeSpeed = 1.5;
+        updatePipeAnimation(pipeSpeed, pipeWidth);
+        // Iniciar nova instância do jogo
+        game = loop();
+    });
+    
+    const backgroundMusic = document.getElementById('background-music');
+    // Adicionamos um listener para quando a página terminar de carregar
+    window.addEventListener('load', (event) => {
+        backgroundMusic.play();
+    });
+    
+    let ranking = JSON.parse(localStorage.getItem('ranking')) || [];
+    
+    function updateRanking(score) {
+        ranking.push(score);
+        // Ordena o ranking em ordem decrescente
+        ranking.sort((a, b) => b - a);
+        // Mantém apenas os 5 melhores resultados
+        ranking = ranking.slice(0, 5);
+        localStorage.setItem('ranking', JSON.stringify(ranking));
+    
+        // Atualiza a exibição do ranking
+        const rankingDisplay = document.getElementById('ranking');
+        rankingDisplay.innerHTML = 'Ranking:<br>' + ranking.map((score, i) => `#${i+1}: ${score}`).join('<br>');
+    }
+    
+    updateRanking(0);
+    
