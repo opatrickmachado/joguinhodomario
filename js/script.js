@@ -159,3 +159,6 @@ restartButton.addEventListener('click', () => {
     
     updateRanking(0);
     
+window.addEventListener('click', (event) => {
+    backgroundMusic.play();
+});
