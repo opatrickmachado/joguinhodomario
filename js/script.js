@@ -1,10 +1,14 @@
 let jumpCount = 0;
 let hasJumped = false;
 let hasDucked = false;
+let isGameOver = false;
+
 const mario = document.querySelector('.mario');
 const pipe = document.querySelector('.pipe');
 const counter = document.getElementById('jump-counter');
 const restartButton = document.getElementById('restart-button');
+const backgroundMusic = document.getElementById('background-music');
+const deathMusic = document.getElementById('death-music');
 
 let highScore = Number(localStorage.getItem('highScore')) || 0;
 const highScoreDisplay = document.getElementById('high-score');
@@ -44,7 +48,6 @@ document.addEventListener('keydown', event => {
     }
 });
 
-document.addEventListener('keydown', jump);
 document.addEventListener('touchstart', jump, {passive: false});
 
 let pipeSpeed = 1.5; 
@@ -56,9 +59,15 @@ function updatePipeAnimation(duration, width) {
     pipe.style.width = `${width}px`;
 }
 
-function randomIntFromInterval(min, max) { // nova função
+function randomIntFromInterval(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
+
+const playBackgroundMusic = (event) => {
+    backgroundMusic.play();
+};
+
+window.addEventListener('click', playBackgroundMusic);
 
 const loop = () => {
     const gameInterval = setInterval(() => {
@@ -68,7 +77,7 @@ const loop = () => {
             const pipePosition = pipe.offsetLeft;
 
             if (pipePosition <= 120 && pipePosition > 0 && marioPosition < 80){
-                updateRanking(jumpCount);
+                isGameOver = true;
                 pipe.style.animation = 'none';
                 pipe.style.left = `${pipePosition}px`;
 
@@ -82,10 +91,11 @@ const loop = () => {
                 restartButton.style.display = 'block';
                 clearInterval(gameInterval);
 
-                // Aqui adicionamos a música de morte
-                const deathMusic = document.getElementById('death-music');
                 backgroundMusic.pause();
                 deathMusic.play();
+
+                // Remover o evento de clique na janela
+                window.removeEventListener('click', playBackgroundMusic);
 
                 if (jumpCount > highScore) {
                     highScore = jumpCount;
@@ -112,53 +122,53 @@ const loop = () => {
 
 let game = loop();
 
-// Iniciar a reprodução da música quando o jogo começar
 function startGame() {
+    // Remover o evento 'ended' quando a música de fundo começar a tocar novamente
+    deathMusic.removeEventListener('ended', stopBackgroundMusic);
     backgroundMusic.play();
 }
 
-// Pausar a reprodução da música quando o jogador morrer
-function playerDies() {
+const stopBackgroundMusic = () => {
     backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
 }
+
+deathMusic.addEventListener('ended', stopBackgroundMusic);
 
 restartButton.addEventListener('click', () => {
-        // Reset variables
-        jumpCount = 0;
-        hasJumped = false;
-        hasDucked = false;
-        
-        location.reload();
-        pipe.style.width = '80px';
-        pipeSpeed = 1.5;
-        updatePipeAnimation(pipeSpeed, pipeWidth);
-        // Iniciar nova instância do jogo
-        game = loop();
-    });
-    
-    const backgroundMusic = document.getElementById('background-music');
-    // Adicionamos um listener para quando a página terminar de carregar
-    window.addEventListener('load', (event) => {
-        backgroundMusic.play();
-    });
-    
-    let ranking = JSON.parse(localStorage.getItem('ranking')) || [];
-    
-    function updateRanking(score) {
-        ranking.push(score);
-        // Ordena o ranking em ordem decrescente
-        ranking.sort((a, b) => b - a);
-        // Mantém apenas os 5 melhores resultados
-        ranking = ranking.slice(0, 5);
-        localStorage.setItem('ranking', JSON.stringify(ranking));
-    
-        // Atualiza a exibição do ranking
-        const rankingDisplay = document.getElementById('ranking');
-        rankingDisplay.innerHTML = 'Ranking:<br>' + ranking.map((score, i) => `#${i+1}: ${score}`).join('<br>');
-    }
-    
-    updateRanking(0);
-    
-window.addEventListener('click', (event) => {
-    backgroundMusic.play();
+    // Reset variables
+    jumpCount = 0;
+    hasJumped = false;
+    hasDucked = false;
+
+    location.reload();
+    pipe.style.width = '80px';
+    pipeSpeed = 1.5;
+    updatePipeAnimation(pipeSpeed, pipeWidth);
+    // Iniciar nova instância do jogo
+    game = loop();
 });
+
+// Adicionamos um listener para quando a página terminar de carregar
+window.addEventListener('load', (event) => {
+    startGame();
+});
+
+let ranking = JSON.parse(localStorage.getItem('ranking')) || [];
+
+function updateRanking(score) {
+    ranking.push(score);
+    // Ordena o ranking em ordem decrescente
+    ranking.sort((a, b) => b - a);
+    // Mantém apenas os 5 melhores resultados
+    ranking = ranking.slice(0, 5);
+    localStorage.setItem('ranking', JSON.stringify(ranking));
+
+    // Atualiza a exibição do ranking
+    const rankingDisplay = document.getElementById('ranking');
+    rankingDisplay.innerHTML = 'Ranking:<br>' + ranking.map((score, i) => `#${i+1}: ${score}`).join('<br>');
+}
+
+updateRanking(0);
+
+
