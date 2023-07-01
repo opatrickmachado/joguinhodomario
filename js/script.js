@@ -102,6 +102,7 @@ const loop = () => {
                     localStorage.setItem('highScore', highScore.toString());
                     highScoreDisplay.innerText = `Recorde: ${highScore}`;
                 }
+                updateRanking(jumpCount);
             }
 
             if (pipePosition < mario.offsetWidth && hasJumped) {
@@ -166,7 +167,7 @@ function updateRanking(score) {
 
     // Atualiza a exibição do ranking
     const rankingDisplay = document.getElementById('ranking');
-    rankingDisplay.innerHTML = 'Ranking:<br>' + ranking.map((score, i) => `#${i+1}: ${score}`).join('<br>');
+    rankingDisplay.innerHTML = 'Posição:<br>' + ranking.map((score, i) => `#${i+1}: ${score}`).join('<br>');
 }
 
 updateRanking(0);

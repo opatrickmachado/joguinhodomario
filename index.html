@@ -9,7 +9,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
-
     <title>Joguinho do Mario</title>
 </head>
 <body>
@@ -21,7 +20,32 @@
 
     <div id="jump-counter">Pulos: 0</div>
     <div id="high-score">Recorde: 0</div>
-    <div id="ranking">Ranking:</div>
+    <div id="ranking-container">
+        <h2>Ranking</h2>
+        <table id="ranking">
+            <thead>
+                <tr>
+                    <th>Posição</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- As linhas da tabela serão adicionadas aqui -->
+                <tr>
+                    <td>1</td>
+                    <td>1000</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>800</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>650</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>       
     <button id="restart-button" style="display: none;">Reiniciar Jogo</button>
 
     <audio id="background-music" autoplay loop>
@@ -32,5 +56,4 @@
 
     <script defer src="./js/script.js"></script>
 </body>
-
 </html>

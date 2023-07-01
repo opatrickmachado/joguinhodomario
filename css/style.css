@@ -89,27 +89,100 @@
 }
 
 #ranking-container {
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 5px;
-    bottom: 10px;
+    background-color: transparent;
+    border: none;
+    bottom: 260px;
     font-family: 'Press Start 2P', cursive;
     left: 20px;
     max-width: 200px;
     padding: 10px;
     position: absolute;
-}
-
-#ranking-container h2 {
-    color: #333;
-    font-size: 1.5em;
-    text-align: center;
-}
-
-#ranking {
+    box-shadow: none;
+  }
+  
+  #ranking-container h2 {
+    color: #FFC300;
     font-size: 1.2em;
-    list-style-type: none;
-    padding: 0;
-}
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin-bottom: 10px;
+  }
+  
+  #ranking {
+    width: 100%;
+    font-family: 'Press Start 2P', cursive;
+    margin-top: 10px;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  
+  #ranking th {
+    background-color: #000000;
+    color: #FFFFFF;
+    font-weight: normal;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  #ranking td {
+    background-color: #FFFFFF;
+    color: #000000;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  #ranking td.position {
+    background-color: #FFC300;
+    font-weight: bold;
+  }
+  
+  #ranking td.score {
+    background-color: #FFC300;
+  }
+  
+  #ranking tr:nth-child(odd) td {
+    background-color: #F5F5F5;
+  }
+  
+  #ranking tr.new-score td {
+    animation: highlight 1s ease;
+    background-color: #8809ff;
+  }
+  
+  #ranking th:first-child,
+  #ranking td:first-child {
+    position: relative;
+    padding-left: 20px;
+  }
+  
+  #ranking th:first-child::before,
+  #ranking td:first-child::before {
+    content: "Posição:";
+    position: absolute;
+    top: 50%;
+    left: -60px;
+    transform: translateY(-50%);
+    font-size: 0.4em;
+    color: #000000;
+    white-space: nowrap;
+  }
+  
+  #ranking td.score {
+    position: relative;
+  }
+  
+  #ranking td.score::before {
+    content: "#";
+    position: absolute;
+    top: 50%;
+    left: -15px;
+    transform: translateY(-50%);
+    font-size: 0.4em;
+    color: #000000;
+  }
+  
+
+
 
 @keyframes pipe-animation {
     from { right: -80px; }
