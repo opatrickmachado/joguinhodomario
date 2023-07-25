@@ -89,9 +89,11 @@
 }
 
 #ranking-container {
+    margin-top: 100px;
+    position: relative;
     background-color: transparent;
     border: none;
-    bottom: 260px;
+    bottom: 230px;
     font-family: 'Press Start 2P', cursive;
     left: 20px;
     max-width: 200px;
@@ -99,7 +101,7 @@
     position: absolute;
     box-shadow: none;
   }
-  
+
   #ranking-container h2 {
     color: #FFC300;
     font-size: 1.2em;
@@ -154,7 +156,7 @@
     position: relative;
     padding-left: 20px;
   }
-  
+  /*
   #ranking th:first-child::before,
   #ranking td:first-child::before {
     content: "Posição:";
@@ -165,7 +167,7 @@
     font-size: 0.4em;
     color: #000000;
     white-space: nowrap;
-  }
+  }*/
   
   #ranking td.score {
     position: relative;
@@ -180,8 +182,30 @@
     font-size: 0.4em;
     color: #000000;
   }
-  
 
+  #time-distance-container {
+    position: absolute;
+    right: 40px; /* Ajuste o valor conforme necessário para distanciar do canto */
+    top: 20px;
+    text-align: right; /* Alinhando o texto à direita */
+}
+
+#time-counter,
+#distance-counter {
+    color: #FF5733;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.5em; /* Diminuindo o tamanho da fonte */
+    text-shadow: 2px 2px 4px #000000;
+    z-index: 10;
+}
+
+#time-counter {
+    position: relative; /* Alterando para relative para permitir que os elementos sejam empilhados verticalmente */
+}
+
+#distance-counter {
+    position: relative; /* Alterando para relative para permitir que os elementos sejam empilhados verticalmente */
+}
 
 
 @keyframes pipe-animation {

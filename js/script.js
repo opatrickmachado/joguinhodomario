@@ -1,4 +1,6 @@
 let jumpCount = 0;
+let distanceCovered = 0;
+let timeElapsed = 0;
 let hasJumped = false;
 let hasDucked = false;
 let isGameOver = false;
@@ -6,12 +8,15 @@ let isGameOver = false;
 const mario = document.querySelector('.mario');
 const pipe = document.querySelector('.pipe');
 const counter = document.getElementById('jump-counter');
+const distanceCounter = document.getElementById('distance-counter');
+const timeCounter = document.getElementById('time-counter');
 const restartButton = document.getElementById('restart-button');
 const backgroundMusic = document.getElementById('background-music');
 const deathMusic = document.getElementById('death-music');
 
 let highScore = Number(localStorage.getItem('highScore')) || 0;
 const highScoreDisplay = document.getElementById('high-score');
+let gameStartedAt = Date.now();
 
 highScoreDisplay.innerText = `Recorde: ${highScore}`;
 
@@ -69,12 +74,36 @@ const playBackgroundMusic = (event) => {
 
 window.addEventListener('click', playBackgroundMusic);
 
+let ranking = JSON.parse(localStorage.getItem('ranking')) || [];
+
+function updateRanking(score, time, distance) {
+    ranking.push({score, time, distance});
+    ranking.sort((a, b) => b.score - a.score);
+    ranking = ranking.slice(0, 3);
+    localStorage.setItem('ranking', JSON.stringify(ranking));
+
+    const rankingDisplay = document.getElementById('ranking').getElementsByTagName('tbody')[0];
+    rankingDisplay.innerHTML = '';
+    ranking.forEach((entry, i) => {
+        let row = rankingDisplay.insertRow();
+        row.innerHTML = `<td>${i + 1}</td><td>${entry.score}</td><td>${entry.time}s</td><td>${entry.distance}m</td>`;
+    });
+}
+
+updateRanking(0, 0, 0);
+
 const loop = () => {
     const gameInterval = setInterval(() => {
         const marioPosition = +window.getComputedStyle(mario).bottom.replace('px', '');
 
+        timeElapsed = ((Date.now() - gameStartedAt) / 1000).toFixed(2);
+        timeCounter.innerText = `Tempo: ${timeElapsed}s`;
+
         document.querySelectorAll('.pipe').forEach(pipe => {
             const pipePosition = pipe.offsetLeft;
+
+            distanceCovered = (pipeSpeed * timeElapsed).toFixed(2);
+            distanceCounter.innerText = `Distância: ${distanceCovered}m`;
 
             if (pipePosition <= 120 && pipePosition > 0 && marioPosition < 80){
                 isGameOver = true;
@@ -94,7 +123,6 @@ const loop = () => {
                 backgroundMusic.pause();
                 deathMusic.play();
 
-                // Remover o evento de clique na janela
                 window.removeEventListener('click', playBackgroundMusic);
 
                 if (jumpCount > highScore) {
@@ -102,7 +130,7 @@ const loop = () => {
                     localStorage.setItem('highScore', highScore.toString());
                     highScoreDisplay.innerText = `Recorde: ${highScore}`;
                 }
-                updateRanking(jumpCount);
+                updateRanking(jumpCount, timeElapsed, distanceCovered);
             }
 
             if (pipePosition < mario.offsetWidth && hasJumped) {
@@ -124,9 +152,9 @@ const loop = () => {
 let game = loop();
 
 function startGame() {
-    // Remover o evento 'ended' quando a música de fundo começar a tocar novamente
     deathMusic.removeEventListener('ended', stopBackgroundMusic);
     backgroundMusic.play();
+    gameStartedAt = Date.now();
 }
 
 const stopBackgroundMusic = () => {
@@ -137,8 +165,9 @@ const stopBackgroundMusic = () => {
 deathMusic.addEventListener('ended', stopBackgroundMusic);
 
 restartButton.addEventListener('click', () => {
-    // Reset variables
     jumpCount = 0;
+    distanceCovered = 0;
+    timeElapsed = 0;
     hasJumped = false;
     hasDucked = false;
 
@@ -146,30 +175,10 @@ restartButton.addEventListener('click', () => {
     pipe.style.width = '80px';
     pipeSpeed = 1.5;
     updatePipeAnimation(pipeSpeed, pipeWidth);
-    // Iniciar nova instância do jogo
+
     game = loop();
 });
 
-// Adicionamos um listener para quando a página terminar de carregar
 window.addEventListener('load', (event) => {
     startGame();
 });
-
-let ranking = JSON.parse(localStorage.getItem('ranking')) || [];
-
-function updateRanking(score) {
-    ranking.push(score);
-    // Ordena o ranking em ordem decrescente
-    ranking.sort((a, b) => b - a);
-    // Mantém apenas os 5 melhores resultados
-    ranking = ranking.slice(0, 5);
-    localStorage.setItem('ranking', JSON.stringify(ranking));
-
-    // Atualiza a exibição do ranking
-    const rankingDisplay = document.getElementById('ranking');
-    rankingDisplay.innerHTML = 'Posição:<br>' + ranking.map((score, i) => `#${i+1}: ${score}`).join('<br>');
-}
-
-updateRanking(0);
-
-
